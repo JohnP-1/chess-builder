@@ -1,5 +1,6 @@
 import sqlite3 from "sqlite3";
 import { Downloader } from "nodejs-file-downloader";
+import { deflate, unzip } from 'node:zlib';
 
 
 export function setupLichessPuzzles() {
@@ -27,4 +28,17 @@ async function downloadLichessPuzzles() {
     
 function createPuzzleDatabase() {
     new sqlite3.Database("./database/puzzles/lichess_db_puzzle.db");
+}
+
+
+import { createReadStream, createWriteStream } from 'node:fs';
+import { createZstdDecompress } from 'node:zlib';
+import { pipeline } from 'node:stream/promises';
+import { PathLike } from "fs";
+
+export async function decompress_zstd(input: PathLike, output: PathLike) {
+    const zstdDecompress = createZstdDecompress();
+    const source = createReadStream(input);
+    const destination = createWriteStream(output);
+    await pipeline(source, zstdDecompress, destination);
 }
